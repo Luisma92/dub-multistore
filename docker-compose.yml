@@ -1,0 +1,78 @@
+name: dub-multistore
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: planetscale
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    command:
+      - --max_connections=1000
+      - --default-authentication-plugin=mysql_native_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  ps-proxy:
+    image: ghcr.io/mattrobenolt/ps-http-sim:latest
+    command: ["-mysql-no-pass", "-listen-port=3900", "-mysql-dbname=planetscale", "-mysql-addr=mysql"]
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  redis-rest:
+    image: hiett0r/serverless-redis-http:latest
+    restart: unless-stopped
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: local_upstash_token
+      SRH_CONNECTION_STRING: "redis://redis:6379"
+    depends_on:
+      - redis
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "8025:8025" # web UI: http://192.168.0.40:8025
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-Dub}
+        NEXT_PUBLIC_APP_DOMAIN: ${NEXT_PUBLIC_APP_DOMAIN:-app.dub.local}
+        NEXT_PUBLIC_APP_SHORT_DOMAIN: ${NEXT_PUBLIC_APP_SHORT_DOMAIN:-dub.local}
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file: .env.docker
+    depends_on:
+      mysql:
+        condition: service_healthy
+      ps-proxy:
+        condition: service_started
+      redis:
+        condition: service_started
+      redis-rest:
+        condition: service_started
+      mailpit:
+        condition: service_started
+
+volumes:
+  mysql_data:
+  redis_data:

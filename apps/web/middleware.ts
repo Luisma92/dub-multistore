@@ -86,5 +86,10 @@ export default async function middleware(req: NextRequest, ev: NextFetchEvent) {
     return CreateLinkMiddleware(req);
   }
 
+  // for store selection pages
+  if (path.startsWith("/p/")) {
+    return NextResponse.next();
+  }
+
   return LinkMiddleware(req, ev);
 }

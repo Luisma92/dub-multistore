@@ -92,6 +92,7 @@ model Project {
   dashboards            Dashboard[]
   utmTemplates          UtmTemplate[]
   yearInReviews         YearInReview[]
+  products              Product[]
 
   @@index(usageLastChecked(sort: Asc))
   @@index(trialEndsAt)

@@ -8,10 +8,11 @@ const VALID_PLATFORM_IDS = new Set(PLATFORMS.map((p) => p.id));
 // POST /api/products/[slug]/click – record a platform click (public)
 export async function POST(
   req: NextRequest,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
+  const { slug } = await params;
   const product = await prisma.product.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     select: { id: true, slug: true },
   });
 

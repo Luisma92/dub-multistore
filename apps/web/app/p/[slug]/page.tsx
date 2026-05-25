@@ -4,12 +4,13 @@ import { notFound } from "next/navigation";
 import { PlatformButton } from "@/ui/products/PlatformButton";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
   const product = await prisma.product.findFirst({
-    where: { slug: params.slug },
+    where: { slug },
     select: { name: true, description: true, imageUrl: true },
   });
 
@@ -27,8 +28,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
+  const { slug } = await params;
   const product = await prisma.product.findFirst({
-    where: { slug: params.slug },
+    where: { slug },
     include: {
       platforms: {
         where: { isActive: true },

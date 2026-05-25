@@ -15,13 +15,10 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY apps/web/package.json                   ./apps/web/
 COPY packages/cli/package.json               ./packages/cli/
 COPY packages/email/package.json             ./packages/email/
-COPY packages/embeds/core/package.json       ./packages/embeds/core/
-COPY packages/embeds/react/package.json      ./packages/embeds/react/
 COPY packages/hubspot-app/package.json       ./packages/hubspot-app/
 COPY packages/prisma/package.json            ./packages/prisma/
 COPY packages/stripe-app/package.json        ./packages/stripe-app/
 COPY packages/tailwind-config/package.json   ./packages/tailwind-config/
-COPY packages/tinybird/package.json          ./packages/tinybird/
 COPY packages/tsconfig/package.json          ./packages/tsconfig/
 COPY packages/ui/package.json                ./packages/ui/
 COPY packages/utils/package.json             ./packages/utils/

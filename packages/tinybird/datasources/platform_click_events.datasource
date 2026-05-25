@@ -1,0 +1,15 @@
+TOKEN "dub_tinybird_token" APPEND
+
+
+SCHEMA >
+    `timestamp` DateTime `json:$.timestamp`,
+    `product_id` String `json:$.product_id`,
+    `product_slug` String `json:$.product_slug`,
+    `platform` LowCardinality(String) `json:$.platform`,
+    `country` LowCardinality(String) `json:$.country`,
+    `device_type` LowCardinality(String) `json:$.device_type`,
+    `referrer` String `json:$.referrer`
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
+ENGINE_SORTING_KEY "timestamp, product_slug, platform"

@@ -1,0 +1,18 @@
+DESCRIPTION >
+    Platform click counts grouped by platform for a given product slug
+
+
+TAGS "Store Selection"
+
+NODE platform_clicks_node
+SQL >
+    %
+    SELECT
+        platform,
+        count() as clicks
+    FROM platform_click_events
+    WHERE product_slug = {{ String(slug, required=True) }}
+    GROUP BY platform
+    ORDER BY clicks DESC
+
+TYPE endpoint

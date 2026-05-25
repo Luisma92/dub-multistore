@@ -31,6 +31,7 @@ export const POST = withWorkspace(async ({ req, workspace }) => {
       url: string;
       logoUrl?: string;
       order?: number;
+      isActive?: boolean;
     }>;
   };
 
@@ -48,16 +49,26 @@ export const POST = withWorkspace(async ({ req, workspace }) => {
     });
   }
 
-  // Check for duplicate slug within workspace
-  const existing = await prisma.product.findFirst({
-    where: { slug, workspaceId: workspace.id },
+  // Validate platform URLs — only http/https allowed
+  for (const p of platforms) {
+    if (!/^https?:\/\//i.test(p.url)) {
+      throw new DubApiError({
+        code: "unprocessable_entity",
+        message: `Platform URL must start with http:// or https://.`,
+      });
+    }
+  }
+
+  // Check for duplicate slug globally (slug is unique across all workspaces)
+  const existing = await prisma.product.findUnique({
+    where: { slug },
     select: { id: true },
   });
 
   if (existing) {
     throw new DubApiError({
       code: "conflict",
-      message: `A product with slug "${slug}" already exists in this workspace.`,
+      message: `A product with slug "${slug}" already exists.`,
     });
   }
 
@@ -75,6 +86,7 @@ export const POST = withWorkspace(async ({ req, workspace }) => {
           url: p.url,
           logoUrl: p.logoUrl,
           order: p.order ?? i,
+          isActive: p.isActive ?? true,
         })),
       },
     },

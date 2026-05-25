@@ -1,6 +1,6 @@
 model Product {
   id          String   @id @default(cuid())
-  slug        String
+  slug        String   @unique
   name        String
   description String?  @db.Text
   imageUrl    String?
@@ -11,7 +11,6 @@ model Product {
   workspace Project         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   platforms StorePlatform[]
 
-  @@unique([slug, workspaceId])
   @@index([workspaceId])
 }
 

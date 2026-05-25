@@ -9,12 +9,25 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: { slug: string } },
 ) {
-  const product = await prisma.product.findFirst({
+  const product = await prisma.product.findUnique({
     where: { slug: params.slug },
-    include: {
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      description: true,
+      imageUrl: true,
       platforms: {
         where: { isActive: true },
         orderBy: { order: "asc" },
+        select: {
+          id: true,
+          platform: true,
+          label: true,
+          url: true,
+          logoUrl: true,
+          order: true,
+        },
       },
     },
   });

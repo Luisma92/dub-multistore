@@ -36,6 +36,7 @@ ENV NEXT_PUBLIC_APP_DOMAIN=$NEXT_PUBLIC_APP_DOMAIN
 ENV NEXT_PUBLIC_APP_SHORT_DOMAIN=$NEXT_PUBLIC_APP_SHORT_DOMAIN
 
 COPY . .
+ENV NODE_OPTIONS="--max-old-space-size=8192"
 RUN pnpm turbo build --filter=web
 
 # ── runner ────────────────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import { RESERVED_SLUGS } from "@dub/utils/src/constants/reserved-slugs";
+import { RESERVED_SLUGS } from "@dub/utils";
 import { describe, expect, it } from "vitest";
 
 describe("RESERVED_SLUGS", () => {

@@ -23,8 +23,8 @@ curl -X POST http://localhost:3000/api/products \
     "slug": "smoke-shop",
     "description": "E2E smoke test product",
     "platforms": [
-      { "type": "shopify", "url": "https://smoke.myshopify.com" },
-      { "type": "woocommerce", "url": "https://smoke.woocommerce.example.com" }
+      { "platform": "shopify", "label": "Shopify", "url": "https://smoke.myshopify.com" },
+      { "platform": "amazon", "label": "Amazon", "url": "https://amazon.com/dp/smoke-test" }
     ]
   }'
 ```

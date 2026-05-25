@@ -31,11 +31,15 @@ async function fetcher<T>(url: string): Promise<T> {
 }
 
 export default function ProductsPageClient() {
-  const { slug: workspaceSlug } = useWorkspace();
+  const { slug: workspaceSlug, id: workspaceId } = useWorkspace();
   const { data: products, isLoading } = useSWR<Product[]>(
-    workspaceSlug ? `/api/products` : null,
+    workspaceId ? `/api/products?workspaceId=${workspaceId}` : null,
     fetcher,
   );
+
+  // Build the absolute public URL so AppMiddleware doesn't rewrite it.
+  const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN ?? "app.dub.co";
+  const publicBaseUrl = `https://${appDomain}`;
 
   return (
     <PageContent
@@ -110,7 +114,7 @@ export default function ProductsPageClient() {
                       </td>
                       <td className="hidden px-4 py-3 sm:table-cell">
                         <a
-                          href={`/p/${product.slug}`}
+                          href={`${publicBaseUrl}/p/${product.slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline"

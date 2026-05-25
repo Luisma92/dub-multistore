@@ -3,6 +3,7 @@
 import useWorkspace from "@/lib/swr/use-workspace";
 import { PLATFORMS, PlatformId } from "@/lib/platforms";
 import { PageContent } from "@/ui/layout/page-content";
+import slugify from "@sindresorhus/slugify";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -14,17 +15,8 @@ interface PlatformEntry {
   isActive: boolean;
 }
 
-function slugify(str: string) {
-  return str
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 export default function NewProductPageClient() {
-  const { slug: workspaceSlug } = useWorkspace();
+  const { slug: workspaceSlug, id: workspaceId } = useWorkspace();
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -89,7 +81,7 @@ export default function NewProductPageClient() {
 
     setSaving(true);
     try {
-      const res = await fetch("/api/products", {
+      const res = await fetch(`/api/products?workspaceId=${workspaceId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -103,6 +95,7 @@ export default function NewProductPageClient() {
             url: p.url,
             logoUrl: p.logoUrl || undefined,
             order: i,
+            isActive: p.isActive,
           })),
         }),
       });

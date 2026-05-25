@@ -37,7 +37,7 @@ async function fetcher<T>(url: string): Promise<T> {
 }
 
 export default function EditProductPageClient() {
-  const { slug: workspaceSlug } = useWorkspace();
+  const { slug: workspaceSlug, id: workspaceId } = useWorkspace();
   const { productSlug } = useParams<{ productSlug: string }>();
   const router = useRouter();
 
@@ -139,8 +139,7 @@ export default function EditProductPageClient() {
 
     setSaving(true);
     try {
-      const res = await fetch(`/api/products/${productSlug}`, {
-        method: "PUT",
+      const res = await fetch(`/api/products/${productSlug}?workspaceId=${workspaceId}`, {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
@@ -173,7 +172,7 @@ export default function EditProductPageClient() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const res = await fetch(`/api/products/${productSlug}`, {
+      const res = await fetch(`/api/products/${productSlug}?workspaceId=${workspaceId}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete product");

@@ -24,15 +24,17 @@ export function PlatformButton({
       : platformConfig?.logo ?? null;
   const accentColor = platformConfig?.color ?? "#6b7280";
 
-  const handleClick = async () => {
-    // Fire-and-forget click tracking
-    void fetch(`/api/products/${productSlug}/click`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ platform }),
-    }).catch(() => {
-      // silently swallow errors
-    });
+  const handleClick = () => {
+    // sendBeacon is designed for fire-and-forget analytics: the browser
+    // queues the request and guarantees delivery even after navigation.
+    if (typeof navigator !== "undefined" && navigator.sendBeacon) {
+      navigator.sendBeacon(
+        `/api/products/${productSlug}/click`,
+        new Blob([JSON.stringify({ platform })], {
+          type: "application/json",
+        }),
+      );
+    }
     window.location.href = url;
   };
 

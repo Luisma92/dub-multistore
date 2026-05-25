@@ -5,21 +5,28 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
 
-# ── pruner ────────────────────────────────────────────────────────────────────
-FROM base AS pruner
-WORKDIR /app
-RUN pnpm add -g turbo@1.12.5
-COPY . .
-RUN turbo prune web --docker
-
 # ── installer ─────────────────────────────────────────────────────────────────
+# Copy package manifests first so the install layer is cached independently
+# from source code changes. Full pnpm-lock.yaml avoids turbo-prune lockfile bugs.
 FROM base AS installer
 WORKDIR /app
 
-# Install deps from pruned lockfile (no source yet — better layer caching)
-COPY --from=pruner /app/out/json/ .
-COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-RUN pnpm install --no-frozen-lockfile
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY apps/web/package.json                   ./apps/web/
+COPY packages/cli/package.json               ./packages/cli/
+COPY packages/email/package.json             ./packages/email/
+COPY packages/embeds/core/package.json       ./packages/embeds/core/
+COPY packages/embeds/react/package.json      ./packages/embeds/react/
+COPY packages/hubspot-app/package.json       ./packages/hubspot-app/
+COPY packages/prisma/package.json            ./packages/prisma/
+COPY packages/stripe-app/package.json        ./packages/stripe-app/
+COPY packages/tailwind-config/package.json   ./packages/tailwind-config/
+COPY packages/tinybird/package.json          ./packages/tinybird/
+COPY packages/tsconfig/package.json          ./packages/tsconfig/
+COPY packages/ui/package.json                ./packages/ui/
+COPY packages/utils/package.json             ./packages/utils/
+
+RUN pnpm install --frozen-lockfile
 
 # NEXT_PUBLIC_* vars are baked into the JS bundle at build time
 ARG NEXT_PUBLIC_APP_NAME=Dub
@@ -29,8 +36,7 @@ ENV NEXT_PUBLIC_APP_NAME=$NEXT_PUBLIC_APP_NAME
 ENV NEXT_PUBLIC_APP_DOMAIN=$NEXT_PUBLIC_APP_DOMAIN
 ENV NEXT_PUBLIC_APP_SHORT_DOMAIN=$NEXT_PUBLIC_APP_SHORT_DOMAIN
 
-# Copy full source on top of installed node_modules
-COPY --from=pruner /app/out/full/ .
+COPY . .
 RUN pnpm turbo build --filter=web
 
 # ── runner ────────────────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import { PLATFORMS } from "@/lib/platforms";
+import { PLATFORMS, PlatformId } from "@/lib/platforms";
 import { recordPlatformClick } from "@/lib/tinybird/record-platform-click";
 import { prisma } from "@dub/prisma";
 import { NextRequest, NextResponse } from "next/server";
@@ -29,7 +29,7 @@ export async function POST(
     );
   }
 
-  const platform = body.platform;
+  const platform = body.platform as PlatformId;
 
   const country = req.headers.get("cf-ipcountry") ?? "unknown";
 

@@ -3,7 +3,7 @@ import { recordPlatformClick } from "@/lib/tinybird/record-platform-click";
 import { prisma } from "@dub/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-const VALID_PLATFORM_IDS = new Set(PLATFORMS.map((p) => p.id));
+const VALID_PLATFORM_IDS: Set<string> = new Set(PLATFORMS.map((p) => p.id));
 
 // POST /api/products/[slug]/click – record a platform click (public)
 export async function POST(

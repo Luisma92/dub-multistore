@@ -11,6 +11,8 @@ services:
     command:
       - --max_connections=1000
       - --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306" # exposed so docker build can connect via host-gateway
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -53,10 +55,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      # host-gateway lets the build container reach MySQL on the host's exposed port 3306.
+      # Run `docker compose up -d mysql` before `docker compose build app`.
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
       args:
         NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-Dub}
         NEXT_PUBLIC_APP_DOMAIN: ${NEXT_PUBLIC_APP_DOMAIN:-app.dub.local}
         NEXT_PUBLIC_APP_SHORT_DOMAIN: ${NEXT_PUBLIC_APP_SHORT_DOMAIN:-dub.local}
+        DATABASE_URL: "mysql://root@host.docker.internal:3306/planetscale"
     restart: unless-stopped
     ports:
       - "3000:3000"

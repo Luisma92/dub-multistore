@@ -35,6 +35,11 @@ ENV NEXT_PUBLIC_APP_NAME=$NEXT_PUBLIC_APP_NAME
 ENV NEXT_PUBLIC_APP_DOMAIN=$NEXT_PUBLIC_APP_DOMAIN
 ENV NEXT_PUBLIC_APP_SHORT_DOMAIN=$NEXT_PUBLIC_APP_SHORT_DOMAIN
 
+# Prisma needs DATABASE_URL to initialize its client even for force-dynamic pages.
+# This dummy value is only used at build time; the real URL is injected at runtime.
+ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+ENV DATABASE_URL=$DATABASE_URL
+
 COPY . .
 ENV NODE_OPTIONS="--max-old-space-size=8192"
 RUN pnpm turbo build --filter=web
